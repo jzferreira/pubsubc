@@ -91,7 +91,9 @@ func create(ctx context.Context, projectID string, topics Topics) error {
 				return fmt.Errorf("Unable to create subscription %q on topic %q for project %q: %s", subscriptionId, topicID, projectID, err)
 			}
 
+			subscriptionId := subscriptionId
 			go func(){
+				log.Printf("[pubsub-listener] Initting listener to: %s", subscriptionId)
 				doEvery(5*time.Second, receiveMessage, projectID,  subscriptionId)
 			}()
 		}
@@ -142,6 +144,7 @@ func main() {
 }
 
 func receiveMessage(projectId string, subscriptionId string){
+	log.Printf("[pubsub-listener] Getting messages from : %s", subscriptionId)
 	ctx := context.Background()
 	client, err := pubsub.NewClient(ctx, projectId)
 	if err != nil {
