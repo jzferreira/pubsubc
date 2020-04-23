@@ -139,6 +139,7 @@ func main() {
 		if err := create(context.Background(), projectId , topics); err != nil {
 			fatalf(err.Error())
 		}
+		fmt.Printf("[Pubsub listener]Finishing:%v \n", currentEnv)
 	}
 
 }
