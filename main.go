@@ -4,9 +4,11 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"runtime"
 	"strings"
+	"time"
 
 	"cloud.google.com/go/pubsub"
 )
@@ -90,6 +92,10 @@ func create(ctx context.Context, projectID string, topics Topics) error {
 			if err != nil {
 				return fmt.Errorf("Unable to create subscription %q on topic %q for project %q: %s", subscriptionId, topicID, projectID, err)
 			}
+
+			go func(){
+				doEvery(5*time.Second, receiveMessage, projectID,  subscriptionId)
+			}()
 		}
 	}
 
@@ -124,7 +130,6 @@ func main() {
 				flag.Usage()
 				os.Exit(1)
 			}
-
 			break
 		}
 		fmt.Printf(`Project config found:`+"\n", currentEnv)
@@ -134,6 +139,27 @@ func main() {
 		if err := create(context.Background(), projectId , topics); err != nil {
 			fatalf(err.Error())
 		}
+	}
+
+}
+
+func receiveMessage(projectId string, subscriptionId string){
+	ctx := context.Background()
+	client, err := pubsub.NewClient(ctx, projectId)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	sub := client.Subscription(subscriptionId)
+	err = sub.Receive(ctx, func(ctx context.Context, m *pubsub.Message) {
+		log.Printf("Got message: %s", m.Data)
+		// NOTE: May be called concurrently; synchronize access to shared memory.
+		m.Ack()
+	})
+}
+
+func doEvery(d time.Duration, f func(projectId string, subscriptionId string), projectId string, subscriptionId string) {
+	for _ = range time.Tick(d) {
+		f(projectId, subscriptionId)
 	}
 }
 
