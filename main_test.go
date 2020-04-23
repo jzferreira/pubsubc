@@ -20,9 +20,17 @@ func Test_parseEnv(t *testing.T) {
 		test {
 			name : "single",
 			args : args {
-				env: "project1,topic1,topic2:subscription1",
+				env: "project1,topic1,topic2>subscription1",
 			},
 			want : Topics{"topic1": []string{}, "topic2": []string{"subscription1"} },
+			want1 : "project1",
+		},
+		test {
+			name : "with push configs",
+			args : args {
+				env: "project1,topic1,topic2>subscription1@http://localhost:3333",
+			},
+			want : Topics{"topic1": []string{}, "topic2": []string{"subscription1@http://localhost:3333"} },
 			want1 : "project1",
 		},
 
