@@ -64,10 +64,6 @@ func create(ctx context.Context, projectID string, topics Topics) error {
 		}
 
 		for _, subscriptionId := range subscriptions {
-			var (
-				pushConfig pubsub.PushConfig
-			)
-
 			subConfig := pubsub.SubscriptionConfig{
 				Topic: topic,
 			}
