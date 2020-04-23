@@ -70,23 +70,27 @@ func create(ctx context.Context, projectID string, topics Topics) error {
 				subConfig pubsub.SubscriptionConfig
 			)
 
-			p := strings.Split(subscription, "@")
-			subscriptionId := p[0]
-			debugf("    Creating subscription %q", subscriptionId)
-			if p[1] != "" {
-				endpoint = p[1]
-				pushConfig = pubsub.PushConfig{
-					Endpoint: endpoint,
-				}
-				subConfig = pubsub.SubscriptionConfig{
-					Topic: topic,
-					PushConfig: pushConfig,
-				}
-			} else{
-				subConfig = pubsub.SubscriptionConfig{
-					Topic: topic,
-				}
+			subConfig = pubsub.SubscriptionConfig{
+				Topic: topic,
 			}
+
+			//p := strings.Split(subscription, "@")
+			//subscriptionId := p[0]
+			//debugf("    Creating subscription %q", subscriptionId)
+			//if p[1] != "" {
+			//	endpoint = p[1]
+			//	pushConfig = pubsub.PushConfig{
+			//		Endpoint: endpoint,
+			//	}
+			//	subConfig = pubsub.SubscriptionConfig{
+			//		Topic: topic,
+			//		PushConfig: pushConfig,
+			//	}
+			//} else{
+			//	subConfig = pubsub.SubscriptionConfig{
+			//		Topic: topic,
+			//	}
+			//}
 
 			_, err = client.CreateSubscription(ctx, subscriptionId, subConfig)
 			if err != nil {
