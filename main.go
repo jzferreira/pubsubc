@@ -61,11 +61,34 @@ func create(ctx context.Context, projectID string, topics Topics) error {
 			return fmt.Errorf("Unable to create topic %q for project %q: %s", topicID, projectID, err)
 		}
 
-		for _, subscriptionID := range subscriptions {
-			debugf("    Creating subscription %q", subscriptionID)
-			_, err = client.CreateSubscription(ctx, subscriptionID, pubsub.SubscriptionConfig{Topic: topic})
+		for _, subscription := range subscriptions {
+			var (
+				endpoint string
+				pushConfig pubsub.PushConfig
+				subConfig pubsub.SubscriptionConfig
+			)
+
+			p := strings.Split(subscription, "@")
+			subscriptionId := p[0]
+			debugf("    Creating subscription %q", subscriptionId)
+			if p[1] != "" {
+				endpoint = p[1]
+				pushConfig = pubsub.PushConfig{
+					Endpoint: endpoint,
+				}
+				subConfig = pubsub.SubscriptionConfig{
+					Topic: topic,
+					PushConfig: pushConfig,
+				}
+			} else{
+				subConfig = pubsub.SubscriptionConfig{
+					Topic: topic,
+				}
+			}
+
+			_, err = client.CreateSubscription(ctx, subscriptionId, subConfig)
 			if err != nil {
-				return fmt.Errorf("Unable to create subscription %q on topic %q for project %q: %s", subscriptionID, topicID, projectID, err)
+				return fmt.Errorf("Unable to create subscription %q on topic %q for project %q: %s", subscriptionId, topicID, projectID, err)
 			}
 		}
 	}
@@ -104,23 +127,31 @@ func main() {
 
 			break
 		}
-
-		// Separate the projectID from the topic definitions.
-		parts := strings.Split(env, ",")
-		if len(parts) < 2 {
-			fatalf("%s: Expected at least 1 topic to be defined", currentEnv)
-		}
-
-		// Separate the topicID from the subscription IDs.
-		topics := make(Topics)
-		for _, part := range parts[1:] {
-			topicParts := strings.Split(part, ":")
-			topics[topicParts[0]] = topicParts[1:]
-		}
+		topics, projectId := ParseEnv(env)
 
 		// Create the project and all its topics and subscriptions.
-		if err := create(context.Background(), parts[0], topics); err != nil {
+		if err := create(context.Background(), projectId , topics); err != nil {
 			fatalf(err.Error())
 		}
 	}
+}
+
+func ParseEnv(env string) (Topics, string) {
+	// Separate the projectID from the topic definitions.
+	parts := strings.Split(env, ",")
+	if len(parts) < 2 {
+		fatalf("%s: Expected at least 1 topic to be defined")
+	}
+
+	projectId := parts[0]
+
+	// Separate the topicID from the subscription IDs.
+	topics := make(Topics)
+	for _, part := range parts[1:] {
+		topicParts := strings.Split(part, ":")
+		topicName := topicParts[0]
+		topicSubscriptions := topicParts[1:]
+		topics[topicName] = topicSubscriptions
+	}
+	return topics, projectId
 }
