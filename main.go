@@ -127,6 +127,7 @@ func main() {
 
 			break
 		}
+		fmt.Printf(`Project config found:`+"\n", currentEnv)
 		topics, projectId := ParseEnv(env)
 
 		// Create the project and all its topics and subscriptions.
@@ -151,6 +152,8 @@ func ParseEnv(env string) (Topics, string) {
 		topicParts := strings.Split(part, ">")
 		topicName := topicParts[0]
 		topicSubscriptions := topicParts[1:]
+		fmt.Printf(`Topic declaration foun found:`+"\n", topicName)
+		fmt.Printf(`With subscription declaration:`+"\n", topicSubscriptions)
 		topics[topicName] = topicSubscriptions
 	}
 	return topics, projectId
