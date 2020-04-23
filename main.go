@@ -93,7 +93,7 @@ func create(ctx context.Context, projectID string, topics Topics) error {
 
 			subscriptionId := subscriptionId
 			go func(){
-				log.Printf("[pubsub-listener] Initting listener to: %s", subscriptionId)
+				fmt.Printf("[pubsub-listener] Initting listener to: %s", subscriptionId)
 				doEvery(5*time.Second, receiveMessage, projectID,  subscriptionId)
 			}()
 		}
@@ -145,7 +145,7 @@ func main() {
 }
 
 func receiveMessage(projectId string, subscriptionId string){
-	log.Printf("[pubsub-listener] Getting messages from : %s", subscriptionId)
+	fmt.Printf("[pubsub-listener] Getting messages from : %s", subscriptionId)
 	ctx := context.Background()
 	client, err := pubsub.NewClient(ctx, projectId)
 	if err != nil {
@@ -180,8 +180,8 @@ func ParseEnv(env string) (Topics, string) {
 		topicParts := strings.Split(part, ">")
 		topicName := topicParts[0]
 		topicSubscriptions := topicParts[1:]
-		fmt.Printf(`Topic declaration foun found:`+"\n", topicName)
-		fmt.Printf(`With subscription declaration:`+"\n", topicSubscriptions)
+		fmt.Printf("[pubsub listener] Topic declaration foun found: %v", topicName)
+		fmt.Printf("[pubsub listener] With subscription declaration: %v", topicSubscriptions)
 		topics[topicName] = topicSubscriptions
 	}
 	return topics, projectId
