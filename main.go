@@ -93,7 +93,6 @@ func create(ctx context.Context, projectID string, topics Topics) error {
 
 			subscriptionId := subscriptionId
 
-			ch := make(chan string)
 			fmt.Printf("[pubsub-listener] Initting listener to: %s", subscriptionId)
 			doEvery( 5*time.Second, receiveMessage, projectID,  subscriptionId)
 
