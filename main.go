@@ -92,10 +92,10 @@ func create(ctx context.Context, projectID string, topics Topics) error {
 			}
 
 			subscriptionId := subscriptionId
-			go func(){
-				fmt.Printf("[pubsub-listener] Initting listener to: %s", subscriptionId)
-				doEvery(5*time.Second, receiveMessage, projectID,  subscriptionId)
-			}()
+
+			fmt.Printf("[pubsub-listener] Initting listener to: %s", subscriptionId)
+			go doEvery(5*time.Second, receiveMessage, projectID,  subscriptionId)
+
 		}
 	}
 
