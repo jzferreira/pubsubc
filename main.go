@@ -94,7 +94,7 @@ func create(ctx context.Context, projectID string, topics Topics) error {
 			subscriptionId := subscriptionId
 
 			fmt.Printf("[pubsub-listener] Initting listener to: %s", subscriptionId)
-			doEvery( 5*time.Second, receiveMessage, projectID,  subscriptionId)
+			doEvery(5*time.Second, receiveMessage, projectID, subscriptionId)
 
 		}
 	}
@@ -136,7 +136,7 @@ func main() {
 		topics, projectId := ParseEnv(env)
 
 		// Create the project and all its topics and subscriptions.
-		if err := create(context.Background(), projectId , topics); err != nil {
+		if err := create(context.Background(), projectId, topics); err != nil {
 			fatalf(err.Error())
 		}
 		fmt.Printf("[Pubsub listener]Finishing:%v \n", currentEnv)
@@ -144,7 +144,7 @@ func main() {
 
 }
 
-func receiveMessage(projectId string, subscriptionId string){
+func receiveMessage(projectId string, subscriptionId string) {
 	fmt.Printf("[pubsub-listener] Getting messages from : %s", subscriptionId)
 	ctx := context.Background()
 	client, err := pubsub.NewClient(ctx, projectId)
@@ -153,6 +153,8 @@ func receiveMessage(projectId string, subscriptionId string){
 	}
 	sub := client.Subscription(subscriptionId)
 	err = sub.Receive(ctx, func(ctx context.Context, m *pubsub.Message) {
+		channel := m.Attributes["channel"]
+		log.Printf("Got Channel: %s", channel)
 		log.Printf("Got message: %s", m.Data)
 		// NOTE: May be called concurrently; synchronize access to shared memory.
 		m.Ack()
