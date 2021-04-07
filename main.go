@@ -161,6 +161,12 @@ func receiveMessage(projectId string, subscriptionId string) {
 	})
 }
 
+func printAttributes(attributes map[string]string) {
+	for k, v := range attributes {
+		log.Println(k, " = ", v)
+	}
+}
+
 func doEvery(d time.Duration, f func(projectId string, subscriptionId string), projectId string, subscriptionId string) {
 	for _ = range time.Tick(d) {
 		f(projectId, subscriptionId)
