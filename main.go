@@ -94,7 +94,7 @@ func create(ctx context.Context, projectID string, topics Topics) error {
 			subscriptionId := subscriptionId
 
 			fmt.Printf("[pubsub-listener] Initting listener to: %s", subscriptionId)
-			doEvery(5*time.Second, receiveMessage, projectID, subscriptionId)
+			// doEvery(5*time.Second, receiveMessage, projectID, subscriptionId)
 
 		}
 	}
